@@ -3,6 +3,6 @@
 */
 export interface redisConfig {
     redisHost: string;
-    redisPort: string;
+    redisPort: number;
     redisPassword: string;
 }

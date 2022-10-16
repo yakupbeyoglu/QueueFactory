@@ -3,18 +3,19 @@ import { redisConfig } from "../types/redisConfig";
 import { baseJob } from "./baseJob";
 
 export class processJob extends baseJob {
-    protected redisConfigs: redisConfig;
+    protected handler:jobHandler<string>;
 
-    constructor(handler: string, onCompleted:Function = undefined, onFail:Function = undefined) {
-        super(onCompleted, onFail);
-        
+    constructor(name:string, redisConfigs:redisConfig, handler: string, onCompleted:Function , onFail:Function) {
+        super(name, redisConfigs, onCompleted, onFail);
+
         // The sandbox process required dirname to run worker process
         if (!handler.includes(__dirname)) 
-            handler = __dirname + '/' + handler;
-        
-        let job_handler = new jobHandler(handler);
-        this.setWorker(job_handler);
-        console.log("I AM process queue", job_handler.getType());
+            handler = __dirname + '/../' + handler;
+        console.log("HANDLER = ", handler);
+        this.handler = new jobHandler(handler);
+        this.setWorker(this.handler);
+
+        console.log("I AM process job", this.handler.getType());
 
     }
 

@@ -5,18 +5,28 @@ import { Queue, Worker, JobsOptions, Backoffs } from 'bullmq'
 export abstract class baseJob {
     private name: string;
     private queue: Queue;
-    private worker: Worker;
-    private onCompleted: Function;
-    private onFail: Function;
-    protected redisConfigs: redisConfig;
-    private handler: jobHandler<any>;
+    protected worker: any;
+    private onCompleted: any;
+    private onFail: any;
+    private connection: any;
+    protected handler: any;
 
-    constructor(onCompleted: any, onFail: any) {
+    constructor(name: string, redisConfigs: redisConfig, onCompleted: any, onFail: any) {
+        this.name = name;
         this.onCompleted = onCompleted;
         this.onFail = onFail;
+        this.connection = {
+            host: redisConfigs.redisHost,
+            port: redisConfigs.redisPort,
+            password: redisConfigs.redisPassword
+        };
+        this.queue = new Queue(this.name, {
+            connection: this.connection
+        });
+
     }
 
-    dispatch(data: any, delay: number, attempts: number = 1): baseJob {
+    dispatch(data: any, delay: number = 0, attempts: number = 1): baseJob {
 
         this.queue.add(this.name, data, {
             delay: delay,
@@ -25,7 +35,7 @@ export abstract class baseJob {
             removeOnFail: false,
             backoff: {
                 type: 'exponential'
-            }
+            },
         });
 
         return this;
@@ -34,17 +44,14 @@ export abstract class baseJob {
     setWorker(handler: jobHandler<any>) {
         this.handler = handler;
 
-        this.worker = new Worker(this.name, this.handler.getHandler());
-
+        this.worker = new Worker(this.name, this.handler.getHandler(), { connection: this.connection });
         if (this.onCompleted != undefined) {
-            this.worker.on('completed', (job) => {
-                this.onCompleted.call(job);
-            });
+            this.worker.on('completed', this.onCompleted);
         }
-        
+
         if (this.onFail != undefined) {
-            this.worker.on('failed', (job) => {
-                this.onFail.call(job);
+            this.worker.on('failed', (job: any) => {
+                this.onFail.call(job.id);
             });
         }
 
