@@ -43,8 +43,8 @@ export abstract class baseJob {
 
     setWorker(handler: jobHandler<any>) {
         this.handler = handler;
-
         this.worker = new Worker(this.name, this.handler.getHandler(), { connection: this.connection });
+        
         if (this.onCompleted != undefined) {
             this.worker.on('completed', this.onCompleted);
         }

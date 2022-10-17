@@ -8,9 +8,6 @@ export class processJob extends baseJob {
     constructor(name:string, redisConfigs:redisConfig, handler: string, onCompleted:Function , onFail:Function) {
         super(name, redisConfigs, onCompleted, onFail);
 
-        // The sandbox process required dirname to run worker process
-        if (!handler.includes(__dirname)) 
-            handler = __dirname + '/../' + handler;
         console.log("HANDLER = ", handler);
         this.handler = new jobHandler(handler);
         this.setWorker(this.handler);
