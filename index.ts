@@ -4,15 +4,15 @@ import { jobFactory } from "./src/jobs/jobFactory";
 import { redisConfig } from "./src/types/redisConfig";
 require('dotenv').config();
 
-async function test(job: any, error: any) {
+async function test(job: any, error ?: any) {
     console.log("Hello my data =>", job.id);
 }
 
-async function complete(job: any, error: any) {
+async function complete(job: any, error ?: any) {
     console.log("JOB COMPLETED", job.name);
 }
 
-async function fail(job: any, error: any) {
+async function fail(job: any, error ?: any) {
     console.log("JOB FAILED", job);
 }
 

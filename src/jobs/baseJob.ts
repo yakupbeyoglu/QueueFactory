@@ -1,25 +1,29 @@
 import { jobHandler } from "../types/jobHandler";
 import { redisConfig } from "../types/redisConfig";
-import { Queue, Worker, JobsOptions, Backoffs } from 'bullmq'
-
+import { Queue, Worker, QueueEvents } from 'bullmq';
+import { workerListeners } from "../types/listeners/eventListeners";
 export abstract class baseJob {
     private name: string;
     private queue: Queue;
     protected worker: any;
-    private onCompleted: any;
-    private onFail: any;
+    private workerListeners?: workerListeners;
     private connection: any;
     protected handler: any;
 
-    constructor(name: string, redisConfigs: redisConfig, onCompleted: any, onFail: any) {
+
+    constructor(name: string, redisConfigs: redisConfig, workerListeners?: workerListeners) {
         this.name = name;
-        this.onCompleted = onCompleted;
-        this.onFail = onFail;
+        // set worker events handlers
+        this.workerListeners = workerListeners;
+        console.log("MY LISTEDTrEN", this.workerListeners);
+
+
         this.connection = {
             host: redisConfigs.redisHost,
             port: redisConfigs.redisPort,
             password: redisConfigs.redisPassword
         };
+
         this.queue = new Queue(this.name, {
             connection: this.connection
         });
@@ -41,19 +45,27 @@ export abstract class baseJob {
         return this;
     }
 
-    setWorker(handler: jobHandler<any>) {
+    setWorker(handler: jobHandler<any>, concurency?: number) {
         this.handler = handler;
-        this.worker = new Worker(this.name, this.handler.getHandler(), { connection: this.connection });
-        
-        if (this.onCompleted != undefined) {
-            this.worker.on('completed', this.onCompleted);
-        }
+            
+        this.worker = new Worker(this.name, this.handler.getHandler(), { connection: this.connection});
+        if(concurency != undefined)
+            this.worker.concurency = concurency;
+        if (this.workerListeners != undefined)
+            this.setWorkerEvents(this.workerListeners);
+    }
 
-        if (this.onFail != undefined) {
-            this.worker.on('failed', (job: any) => {
-                this.onFail.call(job.id);
-            });
-        }
+    setWorkerEvents(listeners: workerListeners) {
+        this.workerListeners = listeners;
+
+        if (this.workerListeners.completed != undefined)
+            this.worker.on('completed', this.workerListeners.completed);
+
+        if (this.workerListeners.failed != undefined)
+            this.worker.on('failed', this.workerListeners.failed);
+
+        if (this.workerListeners.progress != undefined)
+            this.worker.on('progress', this.workerListeners.progress);
 
     }
 
