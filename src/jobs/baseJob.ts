@@ -1,7 +1,7 @@
 import { jobHandler } from "../types/jobHandler";
 import { redisConfig } from "../types/redisConfig";
 import { Queue, Worker, QueueEvents } from 'bullmq';
-import { workerListeners } from "../types/listeners/eventListeners";
+import { workerListeners } from "../types/listeners/workerListeners";
 export abstract class baseJob {
     private name: string;
     private queue: Queue;
@@ -15,8 +15,6 @@ export abstract class baseJob {
         this.name = name;
         // set worker events handlers
         this.workerListeners = workerListeners;
-        console.log("MY LISTEDTrEN", this.workerListeners);
-
 
         this.connection = {
             host: redisConfigs.redisHost,
@@ -30,8 +28,7 @@ export abstract class baseJob {
 
     }
 
-    dispatch(data: any, delay: number = 0, attempts: number = 1): baseJob {
-
+    dispatch(data: any, delay: number = 0, attempts: number = 1, lifo: boolean = false): baseJob {
         this.queue.add(this.name, data, {
             delay: delay,
             attempts: attempts,
@@ -40,16 +37,17 @@ export abstract class baseJob {
             backoff: {
                 type: 'exponential'
             },
-        });
+            lifo: lifo
 
+        });
         return this;
     }
 
     setWorker(handler: jobHandler<any>, concurency?: number) {
         this.handler = handler;
-            
-        this.worker = new Worker(this.name, this.handler.getHandler(), { connection: this.connection});
-        if(concurency != undefined)
+
+        this.worker = new Worker(this.name, this.handler.getHandler(), { connection: this.connection });
+        if (concurency != undefined)
             this.worker.concurency = concurency;
         if (this.workerListeners != undefined)
             this.setWorkerEvents(this.workerListeners);
@@ -66,7 +64,6 @@ export abstract class baseJob {
 
         if (this.workerListeners.progress != undefined)
             this.worker.on('progress', this.workerListeners.progress);
-
     }
 
     getName() {

@@ -4,15 +4,15 @@ import { jobFactory } from "./src/jobs/jobFactory";
 import { redisConfig } from "./src/types/redisConfig";
 require('dotenv').config();
 
-async function test(job: any, error ?: any) {
+async function test(job: any, error?: any) {
     console.log("Hello my data =>", job.id);
 }
 
-async function complete(job: any, error ?: any) {
+async function completed(job: any, error?: any) {
     console.log("JOB COMPLETED", job.name);
 }
 
-async function fail(job: any, error ?: any) {
+async function failed(job: any, error?: any) {
     console.log("JOB FAILED", job);
 }
 
@@ -23,8 +23,11 @@ const configs: redisConfig = {
     redisPort: parseInt(process.env.REDIS_PORT as string),
     redisPassword: process.env.REDIS_PASSWORD as string
 };
-const my_function_job = jobFactory.build("yakup-factory", configs, test, complete, fail);
+const my_function_job = jobFactory.build("yakup-factory", configs, test, { completed, failed });
 my_function_job.dispatch({ name: "TEST" });
-const my_function_job2 = jobFactory.build("yakup-factory-2", configs, __dirname + "/src/test.ts", complete, fail);
+const my_function_job2 = jobFactory.build("yakup-factory-2", configs, __dirname + "/src/test.ts", { completed, failed });
 for (var i = 0; i < 10; i++)
-    my_function_job2.dispatch({ name: "TEST" + i });
+    my_function_job2.dispatch({ name: "TEST" + i }, 0, 1, false);
+
+for (var i = 0; i < 10; i++)
+    my_function_job2.dispatch({ name: "TEST" + i }, 0, 1, true);
