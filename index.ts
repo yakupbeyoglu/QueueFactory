@@ -5,7 +5,7 @@ import { redisConfig } from "./src/types/redisConfig";
 require('dotenv').config();
 
 async function test(job: any, error?: any) {
-    console.log("Hello my data =>", job.id);
+    console.log("Hello my data =>", job.id, job.data);
 }
 
 async function completed(job: any, error?: any) {
@@ -23,6 +23,7 @@ const configs: redisConfig = {
     redisPort: parseInt(process.env.REDIS_PORT as string),
     redisPassword: process.env.REDIS_PASSWORD as string
 };
+
 const my_function_job = jobFactory.build("yakup-factory", configs, test, { completed, failed });
 my_function_job.dispatch({ name: "TEST" });
 const my_function_job2 = jobFactory.build("yakup-factory-2", configs, __dirname + "/src/test.ts", { completed, failed });
