@@ -10,7 +10,6 @@ export abstract class baseJob {
     private connection: any;
     protected handler: any;
 
-
     constructor(name: string, redisConfigs: redisConfig, workerListeners?: workerListeners) {
         this.name = name;
         // set worker events handlers
@@ -38,7 +37,6 @@ export abstract class baseJob {
                 type: 'exponential'
             },
             lifo: lifo
-
         });
         return this;
     }
@@ -46,9 +44,7 @@ export abstract class baseJob {
     setWorker(handler: jobHandler<any>, concurency?: number) {
         this.handler = handler;
 
-        this.worker = new Worker(this.name, this.handler.getHandler(), { connection: this.connection });
-        if (concurency != undefined)
-            this.worker.concurency = concurency;
+        this.worker = new Worker(this.name, this.handler.getHandler(), { connection: this.connection, concurrency: concurency == undefined ? 1 : concurency });
         if (this.workerListeners != undefined)
             this.setWorkerEvents(this.workerListeners);
     }

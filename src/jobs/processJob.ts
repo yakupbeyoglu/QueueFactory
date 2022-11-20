@@ -8,16 +8,7 @@ export class processJob extends baseJob {
 
     constructor(name: string, redisConfigs: redisConfig, handler: string, listener?: workerListeners, concurency?: number) {
         super(name, redisConfigs, listener);
-
-        console.log("HANDLER = ", handler);
         this.handler = new jobHandler(handler);
-        this.setWorker(this.handler);
-        if (concurency != undefined)
-            this.worker.concurency = concurency;
-
-        console.log("I AM process job", this.handler.getType());
-
+        this.setWorker(this.handler, concurency);
     }
-
-
 }
