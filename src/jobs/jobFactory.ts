@@ -4,7 +4,7 @@ import { processJob } from "./processJob";
 import { redisConfig } from "../types/redisConfig";
 import { workerListeners } from "../types/listeners/workerListeners";
 import fs from 'fs';
-import { QueueFactory } from "../types/common";
+
 export class jobFactory {
 
     public static worker_map: Map<string, baseJob>;
