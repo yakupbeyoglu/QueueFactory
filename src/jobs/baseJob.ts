@@ -1,7 +1,9 @@
 import { jobHandler } from "../types/jobHandler";
 import { redisConfig } from "../types/redisConfig";
-import { Queue, Worker, QueueEvents } from 'bullmq';
+import { Queue, Worker } from 'bullmq';
 import { workerListeners } from "../types/listeners/workerListeners";
+import { QueueFactory } from "../types/common";
+
 export abstract class baseJob {
     private name: string;
     private queue: Queue;
@@ -14,7 +16,6 @@ export abstract class baseJob {
         this.name = name;
         // set worker events handlers
         this.workerListeners = workerListeners;
-
         this.connection = {
             host: redisConfigs.redisHost,
             port: redisConfigs.redisPort,
@@ -24,7 +25,6 @@ export abstract class baseJob {
         this.queue = new Queue(this.name, {
             connection: this.connection
         });
-
     }
 
     dispatch(data: any, delay: number = 0, attempts: number = 1, lifo: boolean = false): baseJob {
@@ -64,5 +64,10 @@ export abstract class baseJob {
 
     getName() {
         return this.name;
+    }
+
+    public closeCluster() {
+        this.queue.close();
+        this.worker.close();
     }
 }

@@ -28,3 +28,6 @@ my_function_job.dispatch({ name: "TEST" });
 const my_function_job2 = jobFactory.build("yakup-factory-2", configs, __dirname + "/src/test.ts", { completed, failed });
 for (var i = 0; i < 10; i++)
     my_function_job2.dispatch({ name: "TEST" + i }, 0, 1, false);
+
+process.on("SIGTERM", jobFactory.CloseConnections);
+process.on("SIGINT", jobFactory.CloseConnections);

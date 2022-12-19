@@ -1,5 +1,6 @@
 {
     "name": "queuefactory",
+    "types": "module",
     "version": "1.0.0",
     "description": "Queue factory is following factory pattern to create bullmq sandbox-process &amp; worker functions on typescript",
     "main": "index.js",
