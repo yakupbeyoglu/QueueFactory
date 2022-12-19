@@ -34,9 +34,11 @@ export class jobFactory {
     }
 
     public static CloseConnections() {
-        jobFactory.worker_map.forEach(element => {
-            element.closeCluster();
-        });
+        if (jobFactory.worker_map.size > 0) {
+            jobFactory.worker_map.forEach(element => {
+                element.closeCluster();
+            });
+        }
     }
 
 }
