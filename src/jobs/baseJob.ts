@@ -2,7 +2,6 @@ import { jobHandler } from "../types/jobHandler";
 import { redisConfig } from "../types/redisConfig";
 import { Queue, Worker } from 'bullmq';
 import { workerListeners } from "../types/listeners/workerListeners";
-import { QueueFactory } from "../types/common";
 
 export abstract class baseJob {
     private name: string;
