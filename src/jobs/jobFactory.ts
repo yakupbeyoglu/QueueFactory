@@ -34,7 +34,7 @@ export class jobFactory {
     }
 
     public static CloseConnections() {
-        if (jobFactory.worker_map.size > 0) {
+        if (jobFactory.worker_map !== undefined) {
             jobFactory.worker_map.forEach(element => {
                 element.closeCluster();
             });
