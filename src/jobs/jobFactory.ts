@@ -38,7 +38,9 @@ export class jobFactory {
             jobFactory.worker_map.forEach(element => {
                 element.closeCluster();
             });
+            jobFactory.worker_map.clear();
         }
+
     }
 
 }
